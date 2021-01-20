@@ -107,3 +107,79 @@ ben_1 = load_images(ben_images_1)
 
 plot_any(mal_1, "Malignant Data")
 plot_any(ben_1, "Benign Data")
+
+
+#We pick a photograph from mal images to apply the elbow algorithm.
+
+img_selected = mal[2]
+
+elbow(img_selected, 6)
+
+#We find the elbow from the elbow graph and we assign that number to the k_cluster variable to using later.
+k_klusters = 2
+
+#We put the selected image into the d2Kmean function twice with the k_cluster number. One of them makes it 2 colors, another one is original
+
+result_gray = d2Kmeans(rgb2grey(img_selected), k_klusters)
+result_img = d2Kmeans(img_selected, k_klusters)
+
+#We show the two color image with the different k_cluster numbers.
+
+klusters_gray = [result_gray == i for i in range (k_klusters)]
+plot_any(klusters_gray)
+
+#This function helps us to pick a suitable image
+
+def select_cluster_index(clusters):
+    minx = clusters[0].mean()
+    index = 0
+    for i in clusters:
+        if i.mean() < minx:
+            minx = i.mean()
+            index += 1
+    return index
+
+#We assign the image selected from select_cluster_index function
+
+index_kluster = select_cluster_index(klusters_gray)
+print(index_kluster)
+selected = klusters_gray[index_kluster]
+
+# We display the images of k_clusters number how it affects to image.
+
+for ch in range(3):
+    img_k = []
+    for K in range(k_klusters):
+        img_k.append(result_img[:, :, ch] == K)
+    plot_any(img_k)
+
+clusters = [(result_img[:,:,1] == K) for K in range(k_klusters)]
+
+clusters
+
+#We apply mask to a selected image.
+
+new_img = merge_segmented_mask_ROI(img_selected, selected)
+
+#We display masked image.
+
+plot_any([new_img])
+
+#We choose 20 as radius disk and we give with selected image to mean filter function.
+image_mean_filter = mean_filter(selected, 20)
+
+#Image means filtered image convert to binary form.
+test_binary = binary(image_mean_filter)
+
+plot_any([selected, image_mean_filter, test_binary])
+
+#Image's original form with the mask.
+
+final_result = merge_segmented_mask_ROI(img_selected ,test_binary)
+
+final_result.shape
+
+plot_any([test_binary, new_img, final_result])
+
+
+
