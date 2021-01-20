@@ -181,5 +181,40 @@ final_result.shape
 
 plot_any([test_binary, new_img, final_result])
 
+import matplotlib.pyplot as plt
+from mpl_toolkits.mplot3d import Axes3D
+import cv2
+
+img = cv2.imread(mal_images[2])
+img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+r, g, b = cv2.split(img)
+r = r.flatten()
+g = g.flatten()
+b = b.flatten()
+#plotting
+fig = plt.figure()
+ax = Axes3D(fig)
+ax.scatter(r, g, b)
+plt.show()
+
+#We put masked malignant images into data_mal list.
+
+data_mal = list()
+for img in mal :
+    img = merge_segmented_mask_ROI(img ,test_binary)
+    data_mal.append(img)
+
+
+#We put masked benign images into data_mal list.
+
+data_ben = list()
+for img in ben :
+    img = merge_segmented_mask_ROI(img ,test_binary)
+    data_ben.append(img)
+
+
+len(data_ben)
+len(data_mal)
+
 
 
