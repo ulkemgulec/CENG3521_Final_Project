@@ -240,5 +240,73 @@ if not os.path.exists(out_dir):
 # save each cropped image by its index number
 for c,image in enumerate(data_mal):
     skimage.io.imsave(out_dir +'mal' + str(c) + ".jpg", image)
+    
+    
+
+from PIL import Image
+from torch.autograd import Variable
+import matplotlib.pyplot as plt
+import PIL
+from PIL import Image
+from collections import OrderedDict
+import torch
+from torch import nn, optim
+from torch.optim import lr_scheduler
+from torch.autograd import Variable
+import torchvision
+from torchvision import datasets, models, transforms
+from torch.utils.data.sampler import SubsetRandomSampler
+import torch.nn as nn
+import torch.nn.functional as F
+from skimage.transform import resize    
+import mahotas
+import cv2
+import os
+import glob
+import matplotlib.pyplot as plt
+
+    
+    # make a fix file size
+fixed_size  = tuple((1000,1000))
+
+#train path
+train_path = "segmented/"
+
+# no of trees for Random Forests
+num_tree = 100
+
+# bins for histograms
+bins = 8
+
+# train_test_split size
+test_size = 0.10
+
+# seed for reproducing same result
+seed = 9
+
+def fd_hu_moments(image):
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    feature = cv2.HuMoments(cv2.moments(image)).flatten()
+    return feature
+
+def fd_haralick(image):
+    # convert the image to grayscale
+    gray = cv2.cvtColor(image,cv2.COLOR_BGR2GRAY)
+    haralic = mahotas.features.haralick(gray).mean(axis=0)
+    return haralic
+
+
+def fd_histogram(image, mask=None):
+    # convert the image to HSV colors-space
+    image = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+    #COMPUTE THE COLOR HISTOGRAM
+    hist  = cv2.calcHist([image],[0,1,2],None,[bins,bins,bins], 
+                         [0, 256, 0, 256, 0, 256])
+    # normalize the histogram
+    cv2.normalize(hist, hist)
+    # return the histogram
+    return hist.flatten()
+    
+    
 
 
