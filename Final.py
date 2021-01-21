@@ -217,4 +217,28 @@ len(data_ben)
 len(data_mal)
 
 
+import cv2
+import os
+import io
+import skimage
+# create a directory in which to store cropped images
+out_dir = "segmented/ben/"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+# save each cropped image by its index number
+for k,im in enumerate(data_ben):
+    skimage.io.imsave(out_dir +'ben' + str(k) + ".jpg", im)
+
+
+#This part save masked beningn images into a given path.
+
+out_dir = "segmented/mal/"
+if not os.path.exists(out_dir):
+    os.makedirs(out_dir)
+
+# save each cropped image by its index number
+for c,image in enumerate(data_mal):
+    skimage.io.imsave(out_dir +'mal' + str(c) + ".jpg", image)
+
 
