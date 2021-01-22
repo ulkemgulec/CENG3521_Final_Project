@@ -305,6 +305,84 @@ def fd_histogram(image, mask=None):
     # return the histogram
     return hist.flatten()
     
-    
+# get the training data labels
+train_labels = os.listdir(train_path)
+
+# sort the training labesl
+train_labels.sort()
+print(train_labels)
+
+# empty list to hold feature vectors and labels
+global_features = []
+labels = []
+
+i, j = 0, 0
+k = 0
+
+# num of images per class
+images_per_class = 80
 
 
+# lop over the training data sub folder
+for training_name in train_labels:
+    # join the training data path and each species training folder
+    dir = os.path.join(train_path, training_name)
+
+    # get the current training label
+    current_label = training_name
+
+    k = 1
+    # loop over the images in each sub-folder   
+
+for file in os.listdir(dir):
+
+        file = dir + "/" + os.fsdecode(file)
+
+        # read the image and resize it to a fixed-size
+        image = cv2.imread(file)
+
+        if image is not None:
+            image = cv2.resize(image, fixed_size)
+            fv_hu_moments = fd_hu_moments(image)
+            fv_haralick = fd_haralick(image)
+            fv_histogram = fd_histogram(image)
+
+        # Concatenate global features
+        global_feature = np.hstack([fv_histogram, fv_haralick, fv_hu_moments])
+
+        # update the list of labels and feature vectors
+        labels.append(current_label)
+        global_features.append(global_feature)
+
+        i += 1
+        k += 1
+    print("[STATUS] processed folder: {}".format(current_label))
+    j += 1
+
+print("[STATUS] completed Global Feature Extraction...")
+
+
+
+# get the overall feature vector size
+print("[STATUS] feature vector size {}".format(np.array(global_features).shape))
+
+# get the overall training label size
+print("[STATUS] training Labels {}".format(np.array(labels).shape))
+
+# encode the target labels
+targetNames = np.unique(labels)
+le = LabelEncoder()
+target = le.fit_transform(labels)
+
+
+print("[STATUS] training labels encoded...{}")
+# normalize the feature vector in the range (0-1)
+scaler = MinMaxScaler(feature_range=(0, 1))
+rescaled_features = scaler.fit_transform(global_features)
+print("[STATUS] feature vector normalized...")
+
+print("[STATUS] target labels: {}".format(target))
+print("[STATUS] target labels shape: {}".format(target.shape))
+
+global_features = np.array(rescaled_features)
+global_labels = np.array(target)
