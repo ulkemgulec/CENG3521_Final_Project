@@ -1,18 +1,42 @@
 from glob import glob
+
+import sklearn
+from sklearn.model_selection import train_test_split, cross_val_score, KFold
+from sklearn.linear_model import LogisticRegression
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.discriminant_analysis import LinearDiscriminantAnalysis
+from sklearn.naive_bayes import GaussianNB
+from sklearn.svm import SVC
+from sklearn.preprocessing import LabelEncoder
+from sklearn.preprocessing import MinMaxScaler
+
 import numpy as np
+
 import matplotlib.pyplot as plt
 
+import skimage
 from skimage.io import imread
 from skimage.color import rgb2grey
 from sklearn.feature_extraction import image
 from sklearn.cluster import KMeans
 from skimage.filters import rank, threshold_otsu
-from skimage.morphology import closing, square, disk
-from skimage import exposure as hist, data, img_as_float
-from skimage.segmentation import chan_vese
-from skimage.feature import canny
-from skimage.color import rgb2gray
-from scipy import ndimage as ndi
+from skimage.morphology import disk
+
+import os
+
+import cv2
+
+from mpl_toolkits.mplot3d import Axes3D
+
+import mahotas
+
+import warnings
+warnings.filterwarnings('ignore')
+
+
+
 
 #We assign malignant image data to mal_images and benign image data to ben_images.
 
@@ -58,8 +82,9 @@ def plot_any(arr, title=''):
     plt.figure(figsize=(15, 25))
     for i in range(len(arr)):
         plt.subplot(1, len(arr), i + 1)
-        plt.title(title)
         plt.imshow(arr[i]);
+    plt.savefig(title + ".png")
+    plt.close()
 
 
 # This function applies the KMeans clustering algorithm.
@@ -92,7 +117,9 @@ def elbow(img, k):
     plt.ylabel('Sum of squared distances')
     plt.xlabel('k clusters')
     plt.title('Elbow')
-    plt.show();
+    plt.savefig("elbow.png")
+    plt.close()
+
 
 #We assign mal_images to mal using load_images function.
 #We assign ben_images to ben using load_images function.
@@ -105,8 +132,8 @@ ben_1 = load_images(ben_images_1)
 
 #There are five images example for each moles type.
 
-plot_any(mal_1, "Malignant Data")
-plot_any(ben_1, "Benign Data")
+plot_any(mal_1, "MalignantData")
+plot_any(ben_1, "BenignData")
 
 
 #We pick a photograph from mal images to apply the elbow algorithm.
@@ -126,7 +153,7 @@ result_img = d2Kmeans(img_selected, k_klusters)
 #We show the two color image with the different k_cluster numbers.
 
 klusters_gray = [result_gray == i for i in range (k_klusters)]
-plot_any(klusters_gray)
+plot_any(klusters_gray, "converted2color")
 
 #This function helps us to pick a suitable image
 
@@ -142,7 +169,6 @@ def select_cluster_index(clusters):
 #We assign the image selected from select_cluster_index function
 
 index_kluster = select_cluster_index(klusters_gray)
-print(index_kluster)
 selected = klusters_gray[index_kluster]
 
 # We display the images of k_clusters number how it affects to image.
@@ -155,7 +181,7 @@ for ch in range(3):
 
 clusters = [(result_img[:,:,1] == K) for K in range(k_klusters)]
 
-clusters
+
 
 #We apply mask to a selected image.
 
@@ -163,7 +189,7 @@ new_img = merge_segmented_mask_ROI(img_selected, selected)
 
 #We display masked image.
 
-plot_any([new_img])
+plot_any([new_img], "maskedImage")
 
 #We choose 20 as radius disk and we give with selected image to mean filter function.
 image_mean_filter = mean_filter(selected, 20)
@@ -171,7 +197,7 @@ image_mean_filter = mean_filter(selected, 20)
 #Image means filtered image convert to binary form.
 test_binary = binary(image_mean_filter)
 
-plot_any([selected, image_mean_filter, test_binary])
+plot_any([selected, image_mean_filter, test_binary], "Normal_MeanFiltered_Binary")
 
 #Image's original form with the mask.
 
@@ -179,11 +205,9 @@ final_result = merge_segmented_mask_ROI(img_selected ,test_binary)
 
 final_result.shape
 
-plot_any([test_binary, new_img, final_result])
+plot_any([test_binary, new_img, final_result],  "Binary_Masked_FinalImage")
 
-import matplotlib.pyplot as plt
-from mpl_toolkits.mplot3d import Axes3D
-import cv2
+
 
 img = cv2.imread(mal_images[2])
 img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
@@ -195,7 +219,8 @@ b = b.flatten()
 fig = plt.figure()
 ax = Axes3D(fig)
 ax.scatter(r, g, b)
-plt.show()
+plt.savefig("RgbColorOfSelectedImage.png")
+plt.close()
 
 #We put masked malignant images into data_mal list.
 
@@ -217,10 +242,6 @@ len(data_ben)
 len(data_mal)
 
 
-import cv2
-import os
-import io
-import skimage
 # create a directory in which to store cropped images
 out_dir = "segmented/ben/"
 if not os.path.exists(out_dir):
@@ -242,29 +263,6 @@ for c,image in enumerate(data_mal):
     skimage.io.imsave(out_dir +'mal' + str(c) + ".jpg", image)
     
     
-
-from PIL import Image
-from torch.autograd import Variable
-import matplotlib.pyplot as plt
-import PIL
-from PIL import Image
-from collections import OrderedDict
-import torch
-from torch import nn, optim
-from torch.optim import lr_scheduler
-from torch.autograd import Variable
-import torchvision
-from torchvision import datasets, models, transforms
-from torch.utils.data.sampler import SubsetRandomSampler
-import torch.nn as nn
-import torch.nn.functional as F
-from skimage.transform import resize    
-import mahotas
-import cv2
-import os
-import glob
-import matplotlib.pyplot as plt
-
     
     # make a fix file size
 fixed_size  = tuple((1000,1000))
