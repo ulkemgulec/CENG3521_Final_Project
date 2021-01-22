@@ -388,3 +388,48 @@ print("[STATUS] target labels shape: {}".format(target.shape))
 
 global_features = np.array(rescaled_features)
 global_labels = np.array(target)
+
+
+
+
+num_trees = 100
+test_size = 0.10
+seed      = 9
+train_path = "segmented/"
+scoring    = "accuracy"
+
+
+train_labels = os.listdir(train_path)
+
+
+models = []
+models.append(('LR', LogisticRegression(random_state=seed)))
+models.append(('LDA', LinearDiscriminantAnalysis()))
+models.append(('KNN', KNeighborsClassifier()))
+models.append(('CART', DecisionTreeClassifier(random_state=seed)))
+models.append(('RF', RandomForestClassifier(n_estimators=num_trees, random_state=seed)))
+models.append(('NB', GaussianNB()))
+models.append(('SVM', SVC(random_state=seed)))
+
+
+results = []
+names   = []
+
+
+(trainDataGlobal, testDataGlobal, trainLabelsGlobal, testLabelsGlobal) = train_test_split(np.array(global_features),
+                                                                                          np.array(global_labels),
+                                                                                          test_size=test_size,
+                                                                                          random_state=seed)
+
+
+for name, model in models:
+    kfold = KFold(n_splits=10, random_state=seed)
+    cv_results = cross_val_score(model, trainDataGlobal, trainLabelsGlobal, cv=kfold, scoring=scoring)
+    results.append(cv_results)
+    names.append(name)
+    msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
+    print(msg)
+
+
+
+
