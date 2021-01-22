@@ -171,13 +171,7 @@ def select_cluster_index(clusters):
 index_kluster = select_cluster_index(klusters_gray)
 selected = klusters_gray[index_kluster]
 
-# We display the images of k_clusters number how it affects to image.
 
-for ch in range(3):
-    img_k = []
-    for K in range(k_klusters):
-        img_k.append(result_img[:, :, ch] == K)
-    plot_any(img_k)
 
 clusters = [(result_img[:,:,1] == K) for K in range(k_klusters)]
 
@@ -336,7 +330,7 @@ for training_name in train_labels:
     k = 1
     # loop over the images in each sub-folder   
 
-for file in os.listdir(dir):
+    for file in os.listdir(dir):
 
         file = dir + "/" + os.fsdecode(file)
 
@@ -442,7 +436,7 @@ test_path  = "segmented/mal"
 
 
 
-for file in glob.glob(test_path + "/*.jpg"):
+for file in glob.glob(test_path + "/mal1.jpg"):
     image = cv2.imread(file)
 
     # resize the image
