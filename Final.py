@@ -430,6 +430,41 @@ for name, model in models:
     msg = "%s: %f (%f)" % (name, cv_results.mean(), cv_results.std())
     print(msg)
 
+clf  = RandomForestClassifier(n_estimators=num_trees, random_state=seed)
+clf.fit(trainDataGlobal, trainLabelsGlobal)
+clf_pred = clf.predict(trainDataGlobal)
 
+import glob
+
+
+
+test_path  = "segmented/mal"
+
+
+
+for file in glob.glob(test_path + "/*.jpg"):
+    image = cv2.imread(file)
+
+    # resize the image
+    image = cv2.resize(image, fixed_size)
+
+    # Global Feature extraction
+    fv_hu_moments = fd_hu_moments(image)
+    fv_haralick   = fd_haralick(image)
+    fv_histogram  = fd_histogram(image)
+
+    # Concatenate global features
+
+    global_feature = np.hstack([fv_histogram, fv_haralick, fv_hu_moments])
+
+    # predict label of test image
+    prediction = clf.predict(global_feature.reshape(1,-1))[0]
+
+    # show predicted label on image
+    cv2.putText(image, train_labels[prediction], (60,200), cv2.FONT_HERSHEY_SIMPLEX, 5.0, (0,255,255), 10)
+
+    # display the output image
+    plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2RGB))
+    plt.show()
 
 
