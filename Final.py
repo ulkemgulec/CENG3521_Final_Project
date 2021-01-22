@@ -244,6 +244,7 @@ len(data_mal)
 
 # create a directory in which to store cropped images
 out_dir = "segmented/ben/"
+print("[STATUS] Masked benign images are saving in the directory ---> " + out_dir)
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
@@ -255,6 +256,7 @@ for k,im in enumerate(data_ben):
 #This part save masked beningn images into a given path.
 
 out_dir = "segmented/mal/"
+print("[STATUS] Masked malignant images are saving in the directory ---> " + out_dir)
 if not os.path.exists(out_dir):
     os.makedirs(out_dir)
 
